@@ -1,0 +1,267 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  --primary: #22d3ee;
+  --primary-foreground: #000;
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #22d3ee;
+  --radius: 0.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography & Utilities */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+p {
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}
+
+/* Layout */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Form Elements */
+.input-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+input[type="text"] {
+  flex: 1;
+  height: 3rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--input);
+  background: var(--background);
+  padding: 0 1rem;
+  font-size: 1rem;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2);
+}
+
+button {
+  height: 3rem;
+  padding: 0 1.5rem;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Preview Section */
+.preview-area {
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+
+.label-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  background: #fff;
+  /* Preview should look like paper */
+  padding: 2rem;
+  border-radius: var(--radius);
+  color: black;
+}
+
+.label {
+  width: 4in;
+  height: 6in;
+  border: 1px dashed #ccc;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+
+.label img {
+  max-width: 90%;
+  max-height: 50%;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  /* Slight round for aesthetic */
+}
+
+.label h2 {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+  color: #000;
+}
+
+.label .source {
+  margin-top: auto;
+  font-size: 0.8rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    size: letter;
+    margin: 0.25in;
+    /* Reduce margins slightly to be safe */
+  }
+
+  body {
+    background: white;
+    color: black;
+    height: 100%;
+  }
+
+  .no-print,
+  .container>*:not(.print-area) {
+    display: none !important;
+  }
+
+  .container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+  }
+
+  .print-area {
+    display: block !important;
+    width: 100%;
+    height: 100%;
+  }
+
+  .label-preview-container {
+    background: transparent;
+    padding: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Space out evenly */
+    height: 100%;
+    gap: 0;
+    /* Let justify-content handle it */
+  }
+
+  .label {
+    border: 1px dashed #ccc;
+    /* Keep dashed border for cutting guide */
+    width: 100%;
+    /* 
+       Letter is 11in. Margins 0.25 * 2 = 0.5in. Printable = 10.5in.
+       2 labels. 
+       Let's try 5in height each, leaving 0.5in wiggle room.
+    */
+    height: 5in;
+    margin: 0;
+    /* Remove margin, use flex spacing */
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Force images to print */
+  .label {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}

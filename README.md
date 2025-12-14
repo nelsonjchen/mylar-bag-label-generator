@@ -1,9 +1,37 @@
 # Mylar Bag Label Generator for Filament
 
-This is a project to generate a page that allows users to generate labels for mylar bags.
+This project generates printable labels for your 3D printer filament storage (Mylar bags).
+Input a Bambu Store URL, and it will generate a clean, professional PDF with two labels per page, including the product image and name.
 
-Labels are to be printed on "free" shipping labels from USPS, UPS, or FedEx or non-free shipping labels from anywhere.
+## Features
 
-Input is a URL to bambu store like https://us.store.bambulab.com/products/pla-basic-filament?id=40475106640008
+- **Automated Scraping**: Fetches product name and image from Bambu Store URLs.
+- **Print Optimization**: Formatted specifically for Letter-sized paper (2 labels per page).
+- **Premium UI**: Clean, dark-mode interface for easy interaction.
 
-Output is a HTML page that prints a label twice. Label has the name of the filament, the image of the filament, and source of the filament. Consider the page to be Letter but if there's a way to make it handle other sizes, that's a bonus.
+## Getting Started
+
+1.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+
+2.  **Run Development Server**:
+    ```bash
+    npm run dev
+    ```
+
+3.  **Open in Browser**:
+    Navigate to [http://localhost:3000](http://localhost:3000).
+
+4.  **Usage**:
+    - Paste a URL (e.g., `https://us.store.bambulab.com/products/pla-basic-filament?id=40475106640008`).
+    - Click **Generate**.
+    - Click **Print Labels** (or Ctrl+P / Cmd+P).
+    - Ensure "Background graphics" is enabled in your print dialog if images don't appear.
+
+## Tech Stack
+
+- **Framework**: Next.js (App Router)
+- **Styling**: Native CSS (CSS Modules / Vanilla)
+- **Scraping**: Cheerio
