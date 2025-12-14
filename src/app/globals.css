@@ -141,110 +141,165 @@ button:disabled {
   color: black;
 }
 
+/* Label Styles */
+/* Label Styles - Unified for Preview & Print */
 .label {
-  width: 4in;
-  height: 6in;
+  /* Default dimensions for preview (match print ratio approx) */
+  width: 100%;
+  max-width: 6.5in;
+  /* Reasonable limit for screen */
+  height: 4in;
+  /* Proportional to print size */
+  background: white;
   border: 1px dashed #ccc;
-  padding: 1rem;
+
+  /* Layout - Landscape by default */
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  padding: 1.5rem;
+  gap: 1.5rem;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow for preview */
+}
+
+/* Image Section */
+.label-image {
+  flex: 0 0 35%;
+  height: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  position: relative;
   overflow: hidden;
-  page-break-inside: avoid;
 }
 
 .label img {
-  max-width: 90%;
-  max-height: 50%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  /* Slight round for aesthetic */
+  border-radius: 4px;
+}
+
+/* Info Section */
+.label-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
 }
 
 .label h2 {
-  font-size: 1.5rem;
-  margin: 0.5rem 0;
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem 0;
   color: #000;
+  line-height: 1.2;
 }
 
 .label .source {
-  margin-top: auto;
   font-size: 0.8rem;
   color: #666;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 /* Print Styles */
 @media print {
   @page {
     size: letter;
-    margin: 0.25in;
-    /* Reduce margins slightly to be safe */
+    margin: 0 !important;
   }
 
+  html,
   body {
-    background: white;
-    color: black;
+    width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* simplistic "clip" to single page */
   }
 
+  /* Hide everything except print area */
   .no-print,
   .container>*:not(.print-area) {
     display: none !important;
   }
 
+  /* Reset container to be a simple wrapper */
   .container {
     width: 100%;
+    height: 100%;
     max-width: none;
     margin: 0;
     padding: 0;
-    height: 100vh;
+    display: block;
   }
 
   .print-area {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column;
     width: 100%;
     height: 100%;
+    /* 
+      Padding: 0.5in all around.
+      Available width: 7.5in (8.5 - 1)
+      Available height: 10in (11 - 1)
+    */
+    padding: 0.5in;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: flex-start;
+    /* Start from top */
   }
 
   .label-preview-container {
-    background: transparent;
-    padding: 0;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    /* Space out evenly */
-    height: 100%;
-    gap: 0;
-    /* Let justify-content handle it */
+    display: contents;
+    /* Remove this wrapper's influence */
   }
 
   .label {
-    border: 1px dashed #ccc;
-    /* Keep dashed border for cutting guide */
-    width: 100%;
     /* 
-       Letter is 11in. Margins 0.25 * 2 = 0.5in. Printable = 10.5in.
-       2 labels. 
-       Let's try 5in height each, leaving 0.5in wiggle room.
+      4.25in height * 2 = 8.5in.
+      Leaves 1.5in remainder in the 10in printable vertical area.
+      PLENTY of space.
     */
-    height: 5in;
+    width: 100%;
+    max-width: none;
+    height: 4.25in;
+    border: 1px dashed #999;
     margin: 0;
-    /* Remove margin, use flex spacing */
-    page-break-inside: avoid;
+    margin-bottom: 0.5in;
+    /* Add explicit gap between labels */
+    box-shadow: none;
+
     break-inside: avoid;
+    page-break-inside: avoid;
+
+    padding: 0.5in;
   }
 
-  /* Force images to print */
-  .label {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  .label:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Slight adjustments for Print scaling */
+  .label-image {
+    padding-right: 1.5rem;
+  }
+
+  .label h2 {
+    font-size: 2.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .label .source {
+    font-size: 0.85rem;
   }
 }
 

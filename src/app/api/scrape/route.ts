@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
+import { gotScraping } from 'got-scraping';
 
-
-
-export const runtime = 'edge';
+export const runtime = 'nodejs'; // Must be nodejs for got-scraping
 
 export async function POST(request: Request) {
   try {
@@ -19,19 +18,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
     }
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      },
+    const response = await gotScraping({
+      url,
+      headerGeneratorOptions: {
+        browsers: [{ name: 'chrome', minVersion: 120 }],
+        devices: ['desktop'],
+        locales: ['en-US'],
+      }
     });
 
-    if (!response.ok) {
-      return NextResponse.json({ error: `Failed to fetch URL: ${response.statusText}` }, { status: response.status });
+    if (response.statusCode !== 200) {
+      return NextResponse.json({ error: `Failed to fetch URL: ${response.statusMessage}` }, { status: response.statusCode });
     }
 
-    const html = await response.text();
+    const html = response.body;
 
-    // Regex Extraction Strategy (Edge Safe)
+    // Regex Extraction Strategy
     const getMetaContent = (prop: string) => {
       const regex = new RegExp(`<meta[^>]+property=["']${prop}["'][^>]+content=["']([^"']+)["']`, 'i');
       const match = html.match(regex);
@@ -46,7 +48,7 @@ export async function POST(request: Request) {
     let title = getMetaContent('og:title') || getTitleTag() || '';
     let image = getMetaContent('og:image') || '';
 
-    // Fallback for Shopify image (Simple regex for common pattern)
+    // Fallback for Shopify image
     if (!image) {
       // Look for class="product-single__photo" ... src="..."
       // This is a rough approximation
@@ -67,15 +69,40 @@ export async function POST(request: Request) {
     // Remove " | Bambu Lab US" etc from title if present
     title = title.replace(/\s*\|\s*Bambu Lab.*/i, '').trim();
 
+    let imageBase64 = '';
+    if (image) {
+      try {
+        // Use gotScraping for image too to ensure access
+        const imgRes = await gotScraping({
+          url: image,
+          responseType: 'buffer',
+          headerGeneratorOptions: {
+            browsers: [{ name: 'chrome', minVersion: 120 }],
+            devices: ['desktop'],
+            locales: ['en-US'],
+          }
+        });
+
+        if (imgRes.statusCode === 200) {
+          const base64 = imgRes.body.toString('base64');
+          const mime = imgRes.headers['content-type'] || 'image/jpeg';
+          imageBase64 = `data:${mime};base64,${base64}`;
+        }
+      } catch (e) {
+        console.error('Failed to fetch image for base64', e);
+      }
+    }
+
     return NextResponse.json({
       title: title.trim(),
       image,
+      imageBase64,
       source: new URL(url).hostname,
       url: url
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Scrape error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }

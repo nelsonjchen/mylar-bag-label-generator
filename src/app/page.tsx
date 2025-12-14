@@ -1,6 +1,19 @@
 'use client';
 
+
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the PDF Preview wrapper with SSR disabled
+// This isolates all @react-pdf/renderer imports to the client side only
+const LabelPreview = dynamic(() => import('../components/LabelPreview'), {
+  ssr: false,
+  loading: () => (
+    <div style={{ padding: '2rem', textAlign: 'center', background: '#f4f4f5', borderRadius: '8px' }}>
+      <p>Loading PDF Generator...</p>
+    </div>
+  ),
+});
 
 interface ProductData {
   title: string;
@@ -16,6 +29,7 @@ export default function Home() {
   const [error, setError] = useState('');
 
   const handleGenerate = async () => {
+    // ... existing logic ...
     if (!url) return;
 
     setLoading(true);
@@ -45,7 +59,7 @@ export default function Home() {
 
   return (
     <main className="container">
-      {/* Header & Input Section - Hidden when printing */}
+      {/* ... header and preview area ... */}
       <div className="no-print">
         <header className="header">
           <h1>Mylar Bag Label Generator</h1>
@@ -66,6 +80,23 @@ export default function Home() {
             </button>
           </div>
 
+          <div style={{ marginBottom: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
+            <span style={{ color: 'var(--muted-foreground)', marginRight: '0.5rem' }}>No URL handy?</span>
+            <button
+              onClick={() => setUrl('https://us.store.bambulab.com/products/pla-silk-upgrade?variant=564681970696351763')}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                color: 'var(--foreground)',
+                height: 'auto',
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.8rem'
+              }}
+            >
+              Load Demo URL
+            </button>
+          </div>
+
           {error && (
             <div style={{ color: 'var(--destructive)', marginTop: '0.5rem' }}>
               Error: {error}
@@ -76,33 +107,18 @@ export default function Home() {
 
       {/* Preview / Print Area */}
       {data && (
-        <div className="print-area preview-area">
-          <div className="no-print" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '1.25rem' }}>Preview</h2>
-            <button onClick={() => window.print()}>🖨️ Print Labels</button>
+        <div className="preview-area" style={{ marginTop: '2rem' }}>
+          <div className="no-print" style={{ marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Preview & Print</h2>
+            <p style={{ fontSize: '0.9rem', color: '#888' }}>
+              The PDF below is print-ready. Use the print button in the PDF toolbar.
+            </p>
           </div>
 
-          <div className="label-preview-container">
-            {/* Label 1 */}
-            <LabelView data={data} />
-
-            {/* Label 2 */}
-            <LabelView data={data} />
-          </div>
+          <LabelPreview data={data} />
         </div>
       )}
     </main>
   );
 }
 
-function LabelView({ data }: { data: ProductData }) {
-  return (
-    <div className="label">
-      {data.image && (
-        <img src={data.image} alt={data.title} crossOrigin="anonymous" />
-      )}
-      <h2>{data.title}</h2>
-      <div className="source">Source: {data.source}</div>
-    </div>
-  );
-}
