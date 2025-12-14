@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import * as cheerio from 'cheerio';
+
+
+
+export const runtime = 'edge';
 
 export async function POST(request: Request) {
   try {
@@ -23,30 +26,42 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-        return NextResponse.json({ error: `Failed to fetch URL: ${response.statusText}` }, { status: response.status });
+      return NextResponse.json({ error: `Failed to fetch URL: ${response.statusText}` }, { status: response.status });
     }
 
     const html = await response.text();
-    const $ = cheerio.load(html);
 
-    // Extraction Strategy
-    // 1. OG Tags (Standard)
-    let title = $('meta[property="og:title"]').attr('content') || $('title').text() || '';
-    let image = $('meta[property="og:image"]').attr('content') || '';
+    // Regex Extraction Strategy (Edge Safe)
+    const getMetaContent = (prop: string) => {
+      const regex = new RegExp(`<meta[^>]+property=["']${prop}["'][^>]+content=["']([^"']+)["']`, 'i');
+      const match = html.match(regex);
+      return match ? match[1] : '';
+    };
 
-    // 2. Fallbacks for Bambu Store / Shopify
-    // Try to find specific product images if OG fails or if we want high res
+    const getTitleTag = () => {
+      const match = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      return match ? match[1] : '';
+    };
+
+    let title = getMetaContent('og:title') || getTitleTag() || '';
+    let image = getMetaContent('og:image') || '';
+
+    // Fallback for Shopify image (Simple regex for common pattern)
     if (!image) {
-       // Common Shopify generic selector
-       image = $('.product-single__photo img').attr('src') || ''; 
+      // Look for class="product-single__photo" ... src="..."
+      // This is a rough approximation
+      const shopifyMatch = html.match(/class=["'][^"']*product-single__photo[^"']*["'][^>]*img[^>]+src=["']([^"']+)["']/i);
+      if (shopifyMatch) {
+        image = shopifyMatch[1];
+      }
     }
 
     // 3. Clean up
     if (image && image.startsWith('//')) {
-        image = 'https:' + image;
+      image = 'https:' + image;
     } else if (image && image.startsWith('/')) {
-        const urlObj = new URL(url);
-        image = `${urlObj.origin}${image}`;
+      const urlObj = new URL(url);
+      image = `${urlObj.origin}${image}`;
     }
 
     // Remove " | Bambu Lab US" etc from title if present
