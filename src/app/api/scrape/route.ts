@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { gotScraping } from 'got-scraping';
+import { scrapeCache, getCacheKey } from '@/lib/cache';
 
 export const runtime = 'nodejs'; // Must be nodejs for got-scraping
 
@@ -32,6 +33,21 @@ export async function POST(request: Request) {
         error: 'This does not look like a product page. Please use a URL containing "/products/".'
       }, { status: 400 });
     }
+
+    // Check cache first
+    const cacheKey = getCacheKey(url);
+    const cachedData = scrapeCache.get(cacheKey);
+
+    if (cachedData) {
+      console.log('Cache HIT for:', url);
+      return NextResponse.json(cachedData, {
+        headers: {
+          'X-Cache': 'HIT',
+        },
+      });
+    }
+
+    console.log('Cache MISS for:', url);
 
     const response = await gotScraping({
       url,
@@ -243,7 +259,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    return NextResponse.json({
+    const responseData = {
       title: title.trim(),
       image,
       imageBase64,
@@ -251,6 +267,16 @@ export async function POST(request: Request) {
       url: url,
       color,
       colorImage
+    };
+
+    // Store in cache
+    scrapeCache.set(cacheKey, responseData);
+    console.log('Cached data for:', url);
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'X-Cache': 'MISS',
+      },
     });
 
   } catch (error: any) {
