@@ -16,14 +16,14 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         backgroundColor: '#fff',
-        padding: 0,
+        padding: 10, // Reduced page padding
     },
     labelContainer: {
         height: '50%',
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20, // Reduced padding
+        padding: 5, // Minimal padding inside label
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
         borderBottomStyle: 'dashed',
@@ -32,11 +32,11 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0,
     },
     imageSection: {
-        width: '40%', // Increased width for image
+        flexGrow: 1, // Take up remaining space
         height: '100%',
+        paddingRight: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingRight: 20,
     },
     image: {
         objectFit: 'contain',
@@ -44,41 +44,41 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     infoSection: {
-        width: '60%',
+        width: '28%', // Narrower text section
         height: '100%',
-        justifyContent: 'center',
+        justifyContent: 'center', // Center vertically
         alignItems: 'flex-start',
-        paddingLeft: 0,
     },
     title: {
-        fontSize: 24, // Slightly smaller to fit color
-        marginBottom: 10,
+        fontSize: 22,
+        marginBottom: 8,
         fontFamily: 'Helvetica-Bold',
-        lineHeight: 1.2,
+        lineHeight: 1.1,
     },
     colorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 15,
+        flexDirection: 'column', // Stack color info
+        alignItems: 'flex-start',
+        marginBottom: 10,
     },
     colorText: {
-        fontSize: 14,
+        fontSize: 12,
         fontFamily: 'Helvetica',
         color: '#000',
+        marginBottom: 4,
     },
     colorSwatch: {
-        width: 20,
-        height: 20,
-        marginLeft: 10,
+        width: 30, // Larger swatch
+        height: 30,
         borderRadius: 4,
         backgroundColor: '#f0f0f0',
         objectFit: 'cover',
     },
     source: {
-        fontSize: 12,
-        color: '#444',
+        fontSize: 8,
+        color: '#666',
         textTransform: 'uppercase',
         fontFamily: 'Helvetica',
+        marginTop: 'auto', // Push to bottom? Or just margin
     },
 });
 
