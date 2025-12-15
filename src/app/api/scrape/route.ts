@@ -1,9 +1,38 @@
 import { NextResponse } from 'next/server';
 import { gotScraping } from 'got-scraping';
+import * as cheerio from 'cheerio';
 import { scrapeCache, getCacheKey } from '@/lib/cache';
 import { extractFilamentType, getDryingParameters } from '@/data/dryingParameters';
 
 export const runtime = 'nodejs'; // Must be nodejs for got-scraping
+
+// TypeScript interfaces for the JSON-LD structured data
+interface JsonLdOffer {
+  '@type': string;
+  url?: string;
+}
+
+interface JsonLdVariant {
+  '@type': string;
+  sku?: string;
+  name?: string;
+  image?: string;
+  offers?: JsonLdOffer;
+}
+
+interface JsonLdProductGroup {
+  '@type': string;
+  name?: string;
+  hasVariant?: JsonLdVariant[];
+}
+
+interface JsonLdProduct {
+  '@type': string;
+  name?: string;
+  image?: string;
+  sku?: string;
+  offers?: JsonLdOffer | JsonLdOffer[];
+}
 
 export async function POST(request: Request) {
   try {
@@ -69,46 +98,146 @@ export async function POST(request: Request) {
 
     const html = response.body;
 
-    // Regex Extraction Strategy
-    const getMetaContent = (prop: string) => {
-      const regex = new RegExp(`<meta[^>]+property=["']${prop}["'][^>]+content=["']([^"']+)["']`, 'i');
-      const match = html.match(regex);
-      return match ? match[1] : '';
-    };
+    // Parse HTML with cheerio
+    const $ = cheerio.load(html);
 
-    const getTitleTag = () => {
-      const match = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-      return match ? match[1] : '';
-    };
+    // Extract meta tags properly
+    const ogTitle = $('meta[property="og:title"]').attr('content') || '';
+    const ogImage = $('meta[property="og:image"]').attr('content') || '';
+    const titleTag = $('title').text() || '';
 
-    let title = getMetaContent('og:title') || getTitleTag() || '';
-    let image = getMetaContent('og:image') || '';
+    let title = ogTitle || titleTag;
+    let image = ogImage;
 
     // Fallback for Shopify image
     if (!image) {
-      // Look for class="product-single__photo" ... src="..."
-      // This is a rough approximation
-      const shopifyMatch = html.match(/class=["'][^"']*product-single__photo[^"']*["'][^>]*img[^>]+src=["']([^"']+)["']/i);
-      if (shopifyMatch) {
-        image = shopifyMatch[1];
+      const productImg = $('img.product-single__photo').attr('src');
+      if (productImg) {
+        image = productImg;
       }
     }
 
-    // 3. Clean up
+    // Clean up image URL
     if (image && image.startsWith('//')) {
       image = 'https:' + image;
     } else if (image && image.startsWith('/')) {
-      const urlObj = new URL(url);
       image = `${urlObj.origin}${image}`;
     }
 
     // Remove " | Bambu Lab US" etc from title if present
     title = title.replace(/\s*\|\s*Bambu Lab.*/i, '').trim();
 
+    // Extract variant ID from URL
+    const variantId = urlObj.searchParams.get('variant') || urlObj.searchParams.get('id');
+
+    console.log('Scrape Request:', { url, variantId });
+
+    // Validation - User must select a variant
+    if (!variantId) {
+      return NextResponse.json({
+        error: 'Please select a specific color/option on the Bambu Lab page, then copy the URL (it should have a ?variant=... or ?id=... part).'
+      }, { status: 400 });
+    }
+
+    // Extract and parse JSON-LD structured data
+    let color = '';
+    let colorImage = '';
+
+    // Find all JSON-LD script tags
+    const jsonLdScripts = $('script[type="application/ld+json"]');
+
+    jsonLdScripts.each((_, el) => {
+      if (color) return; // Already found, stop searching
+
+      try {
+        const jsonText = $(el).html();
+        if (!jsonText) return;
+
+        const data = JSON.parse(jsonText) as JsonLdProductGroup | JsonLdProduct;
+
+        // Handle ProductGroup schema (most common for Bambu Lab products)
+        if (data['@type'] === 'ProductGroup' && 'hasVariant' in data) {
+          const variants = data.hasVariant || [];
+
+          for (const variant of variants) {
+            // Match variant by SKU (which is the variant ID in the URL)
+            if (variant.sku === variantId) {
+              console.log('Found matching variant in JSON-LD ProductGroup:', variant.name);
+
+              // Extract color from the variant name
+              // Format: "PC FR - White (63101) / Filament with spool / 1 kg"
+              if (variant.name) {
+                const colorMatch = variant.name.match(/- ([^/]+(?:\([^)]+\))?)\s*\//);
+                if (colorMatch) {
+                  color = colorMatch[1].trim();
+                  console.log('Extracted color from JSON-LD:', color);
+                }
+              }
+
+              // Use the variant-specific image
+              if (variant.image) {
+                image = variant.image;
+                console.log('Found variant-specific image:', image);
+              }
+
+              break;
+            }
+          }
+        }
+
+        // Fallback: Handle direct Product schema
+        if (!color && data['@type'] === 'Product') {
+          const product = data as JsonLdProduct;
+          if (product.sku === variantId && product.name) {
+            const colorMatch = product.name.match(/- ([^/]+(?:\([^)]+\))?)\s*\//);
+            if (colorMatch) {
+              color = colorMatch[1].trim();
+            }
+            if (product.image) {
+              image = product.image;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing JSON-LD:', e);
+      }
+    });
+
+    // Fallback: Try parsing Next.js hydration data if JSON-LD didn't work
+    if (!color) {
+      console.log('JSON-LD extraction failed, trying Next.js data fallback...');
+
+      // Look for Next.js script tags that contain product data
+      $('script').each((_, el) => {
+        if (color) return;
+
+        const scriptContent = $(el).html();
+        if (!scriptContent || !scriptContent.includes(variantId)) return;
+
+        // Try to find JSON objects in the script content
+        // Next.js often embeds data as: self.__next_f.push([1,"...escaped JSON..."])
+        try {
+          // Look for the variant ID and extract nearby value field
+          // This is a simplified fallback - the JSON-LD approach is preferred
+          const valueMatch = scriptContent.match(new RegExp(
+            `"id"\\s*:\\s*"${variantId}"[^}]*"value"\\s*:\\s*"([^"]+)"`,
+            'i'
+          ));
+
+          if (valueMatch) {
+            color = valueMatch[1];
+            console.log('Extracted color from Next.js data (fallback):', color);
+          }
+        } catch (e) {
+          // Ignore parsing errors in fallback
+        }
+      });
+    }
+
+    // Fetch image as base64
     let imageBase64 = '';
     if (image) {
       try {
-        // Use gotScraping for image too to ensure access
         const imgRes = await gotScraping({
           url: image,
           responseType: 'buffer',
@@ -129,118 +258,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 4. Extract Color / Variant Info
-    let color = '';
-    let colorImage = '';
-    try {
-      const parsedUrl = new URL(url);
-      const variantId = parsedUrl.searchParams.get('variant') || parsedUrl.searchParams.get('id');
-
-      console.log('Scrape Request:', { url, variantId });
-
-
-      // NEW: Validation - User must select a variant
-      if (!variantId) {
-        return NextResponse.json({
-          error: 'Please select a specific color/option on the Bambu Lab page, then copy the URL (it should have a ?variant=... or ?id=... part).'
-        }, { status: 400 });
-      }
-
-      if (variantId) {
-        const escapedIdPattern = `\\\\\"id\\\\\":\\\\\"${variantId}\\\\\"`;
-        const variantBlockRegex = new RegExp(`${escapedIdPattern}.*?\\\\\"value\\\\\":\\\\\"([^\\\"]+)\\\\\"`);
-        const variantMatch = html.match(variantBlockRegex);
-
-        if (variantMatch) {
-          color = variantMatch[1];
-
-          // Try to find colorUrl in the same block (optimistic)
-          // It might be after value
-          const colorUrlRegex = new RegExp(`${escapedIdPattern}.*?\\\\\"colorUrl\\\\\":\\\\\"([^\\\"]+)\\\\\"`);
-          const urlMatch = html.match(colorUrlRegex);
-          if (urlMatch) {
-            colorImage = urlMatch[1];
-          }
-
-          // 4b. Find the MAIN IMAGE for this specific color
-          // Strategy: Look for the JSON-LD or Next.js data that links this color name to an image.
-          // The data is often inside a JSON string within the script, so quotes are escaped like \"
-          try {
-            // Escape special regex chars in color (like parentheses)
-            // And also escape quotes for the string-in-string matching if needed, though they usually aren't in the value itself.
-            const escapedColor = color.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-            console.log(`Searching for specific image for color: ${color}`);
-
-            // Try the robust double-escaped regex that matches the Next.js hydration data structure
-            // Matches: \"mediaFile\":{...\"url\":\"(URL)\"...}...\"propertyValue\":\"(Color)\"
-            const escapedMediaRegex = new RegExp(`\\\\\"mediaFile\\\\\":\\{.*?\\\\\"url\\\\\":\\\\\"([^\\\"]+)\\\\\".*?\\}.{0,2000}?\\\\\"propertyValue\\\\\":\\\\\"${escapedColor}\\\\\"`);
-
-            const mediaMatch = html.match(escapedMediaRegex);
-
-            if (mediaMatch) {
-              let specificImage = mediaMatch[1];
-              if (specificImage.startsWith('http')) {
-                console.log('Found specific image (Strategy: Next.js Data):', specificImage);
-                image = specificImage;
-                imageBase64 = '';
-              }
-            } else {
-              // Fallback: Try JSON-LD style which might be cleaner (unescaped quotes in some blocks)
-              // "image":"(URL)","name":"...Color..."
-              const imageByColorRegex = new RegExp(`"image":"([^"]+)"[^}]*"name":"[^"]*${escapedColor}[^"]*"`, 'i');
-              const imageMatch = html.match(imageByColorRegex);
-
-              if (imageMatch) {
-                let specificImage = imageMatch[1];
-                if (specificImage.startsWith('http')) {
-                  console.log('Found specific image (Strategy: JSON-LD):', specificImage);
-                  image = specificImage;
-                  imageBase64 = '';
-                }
-              }
-            }
-          } catch (err) {
-            console.error('Error finding specific image:', err);
-          }
-
-        } else {
-          const unescapedRegex = new RegExp(`"id":"${variantId}".*?"value":"([^"]+)"`);
-          const m2 = html.match(unescapedRegex);
-          if (m2) {
-            color = m2[1];
-          }
-        }
-      }
-    } catch (e) {
-      console.error('Error extracting variant:', e);
-    }
-
-    // 5. Re-fetch base64 if image changed
-    if (image && !imageBase64) {
-      try {
-        const imgRes = await gotScraping({
-          url: image,
-          responseType: 'buffer',
-          headerGeneratorOptions: {
-            browsers: [{ name: 'chrome', minVersion: 120 }],
-            devices: ['desktop'],
-            locales: ['en-US'],
-          }
-        });
-
-        if (imgRes.statusCode === 200) {
-          const base64 = imgRes.body.toString('base64');
-          const mime = imgRes.headers['content-type'] || 'image/jpeg';
-          imageBase64 = `data:${mime};base64,${base64}`;
-        }
-      } catch (e) {
-        console.error('Failed to refetch image for base64', e);
-      }
-    }
-
-    // 6. Validation: Ensure it's likely a filament
-    // The user wants to filter out non-filament products (like motors, support pages, etc)
+    // Validation: Ensure it's likely a filament
     const titleLower = title.toLowerCase();
     const isFilament =
       titleLower.includes('filament') ||
@@ -260,7 +278,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 7. Auto-detect drying parameters
+    // Auto-detect drying parameters
     const filamentType = extractFilamentType(title);
     const dryingParams = filamentType ? getDryingParameters(filamentType) : undefined;
 
