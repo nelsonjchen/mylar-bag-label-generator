@@ -35,3 +35,28 @@ Input a Bambu Store URL, and it will generate a clean, professional PDF with two
 - **Framework**: Next.js (App Router)
 - **Styling**: Native CSS (CSS Modules / Vanilla)
 - **Scraping**: Cheerio
+
+## Deployment
+
+### Cloudflare Workers (Containers)
+
+This project uses Cloudflare's [Container support](https://developers.cloudflare.com/workers/) (via Durable Objects) to run the Next.js application.
+
+1.  **Prerequisites**:
+    - Docker installed and running.
+    - Cloudflare account with Workers paid plan (required for Containers/Durable Objects).
+
+2.  **Deploy**:
+    ```bash
+    npx wrangler deploy
+    ```
+    This will:
+    - Build the Docker image from `Dockerfile`.
+    - Upload the image to Cloudflare.
+    - Deploy the Worker and bind it to the Container.
+
+3.  **Local Development**:
+    To preview the containerized worker locally:
+    ```bash
+    npx wrangler dev
+    ```
