@@ -108,11 +108,57 @@ export async function POST(request: Request) {
 
         if (variantMatch) {
           color = variantMatch[1];
+
+          // Try to find colorUrl in the same block (optimistic)
+          // It might be after value
           const colorUrlRegex = new RegExp(`${escapedIdPattern}.*?\\\\\"colorUrl\\\\\":\\\\\"([^\\\"]+)\\\\\"`);
           const urlMatch = html.match(colorUrlRegex);
           if (urlMatch) {
             colorImage = urlMatch[1];
           }
+
+          // 4b. Find the MAIN IMAGE for this specific color
+          // Strategy: Look for the JSON-LD or Next.js data that links this color name to an image.
+          // The data is often inside a JSON string within the script, so quotes are escaped like \"
+          try {
+            // Escape special regex chars in color (like parentheses)
+            // And also escape quotes for the string-in-string matching if needed, though they usually aren't in the value itself.
+            const escapedColor = color.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            console.log(`Searching for specific image for color: ${color}`);
+
+            // Try the robust double-escaped regex that matches the Next.js hydration data structure
+            // Matches: \"mediaFile\":{...\"url\":\"(URL)\"...}...\"propertyValue\":\"(Color)\"
+            const escapedMediaRegex = new RegExp(`\\\\\"mediaFile\\\\\":\\{.*?\\\\\"url\\\\\":\\\\\"([^\\\"]+)\\\\\".*?\\}.{0,2000}?\\\\\"propertyValue\\\\\":\\\\\"${escapedColor}\\\\\"`);
+
+            const mediaMatch = html.match(escapedMediaRegex);
+
+            if (mediaMatch) {
+              let specificImage = mediaMatch[1];
+              if (specificImage.startsWith('http')) {
+                console.log('Found specific image (Strategy: Next.js Data):', specificImage);
+                image = specificImage;
+                imageBase64 = '';
+              }
+            } else {
+              // Fallback: Try JSON-LD style which might be cleaner (unescaped quotes in some blocks)
+              // "image":"(URL)","name":"...Color..."
+              const imageByColorRegex = new RegExp(`"image":"([^"]+)"[^}]*"name":"[^"]*${escapedColor}[^"]*"`, 'i');
+              const imageMatch = html.match(imageByColorRegex);
+
+              if (imageMatch) {
+                let specificImage = imageMatch[1];
+                if (specificImage.startsWith('http')) {
+                  console.log('Found specific image (Strategy: JSON-LD):', specificImage);
+                  image = specificImage;
+                  imageBase64 = '';
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Error finding specific image:', err);
+          }
+
         } else {
           const unescapedRegex = new RegExp(`"id":"${variantId}".*?"value":"([^"]+)"`);
           const m2 = html.match(unescapedRegex);
@@ -123,6 +169,29 @@ export async function POST(request: Request) {
       }
     } catch (e) {
       console.error('Error extracting variant:', e);
+    }
+
+    // 5. Re-fetch base64 if image changed
+    if (image && !imageBase64) {
+      try {
+        const imgRes = await gotScraping({
+          url: image,
+          responseType: 'buffer',
+          headerGeneratorOptions: {
+            browsers: [{ name: 'chrome', minVersion: 120 }],
+            devices: ['desktop'],
+            locales: ['en-US'],
+          }
+        });
+
+        if (imgRes.statusCode === 200) {
+          const base64 = imgRes.body.toString('base64');
+          const mime = imgRes.headers['content-type'] || 'image/jpeg';
+          imageBase64 = `data:${mime};base64,${base64}`;
+        }
+      } catch (e) {
+        console.error('Failed to refetch image for base64', e);
+      }
     }
 
     return NextResponse.json({
