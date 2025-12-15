@@ -1,7 +1,7 @@
 'use client';
 
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import QRCode from 'qrcode';
 
@@ -42,6 +42,7 @@ export default function Home() {
   const [data, setData] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -85,6 +86,15 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  // Auto-scroll to preview when data is set
+  useEffect(() => {
+    if (data && previewRef.current) {
+      setTimeout(() => {
+        previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [data]);
 
   const handleGenerate = async () => {
     // ... existing logic ...
@@ -212,7 +222,7 @@ export default function Home() {
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
                 />
-                <button onClick={handleGenerate} disabled={loading}>
+                <button onClick={handleGenerate} disabled={!url || loading}>
                   {loading ? 'Gener...' : 'Generate'}
                 </button>
               </div>
@@ -389,7 +399,7 @@ export default function Home() {
 
       {/* Preview / Print Area */}
       {data && (
-        <div className="preview-area" style={{ marginTop: '2rem' }}>
+        <div ref={previewRef} className="preview-area" style={{ marginTop: '2rem' }}>
           <div className="no-print" style={{ marginBottom: '1rem' }}>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Preview & Print</h2>
             <p style={{ fontSize: '0.9rem', color: '#888' }}>
