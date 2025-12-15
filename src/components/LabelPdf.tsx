@@ -4,6 +4,7 @@ import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/render
 interface ProductData {
     title: string;
     image: string;
+    imageBase64?: string;
     source: string;
     url: string;
 }
@@ -13,14 +14,14 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         backgroundColor: '#fff',
-        padding: 0, // We control margins manually if needed
+        padding: 0,
     },
     labelContainer: {
-        height: '50%', // Exactly half page
+        height: '50%',
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 30,
+        padding: 20, // Reduced padding
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
         borderBottomStyle: 'dashed',
@@ -29,32 +30,33 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0,
     },
     imageSection: {
-        width: '35%',
+        width: '40%', // Increased width for image
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingRight: 10,
+        paddingRight: 20,
     },
     image: {
         objectFit: 'contain',
-        maxHeight: '100%',
-        maxWidth: '100%',
-        borderRadius: 4,
+        height: '100%',
+        width: '100%',
     },
     infoSection: {
-        width: '65%',
+        width: '60%',
+        height: '100%',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        paddingLeft: 10,
+        paddingLeft: 0,
     },
     title: {
-        fontSize: 24,
-        marginBottom: 10,
+        fontSize: 36, // Much larger title
+        marginBottom: 15,
         fontFamily: 'Helvetica-Bold',
+        lineHeight: 1.2,
     },
     source: {
-        fontSize: 10,
-        color: '#666',
+        fontSize: 12,
+        color: '#444',
         textTransform: 'uppercase',
         fontFamily: 'Helvetica',
     },
@@ -69,13 +71,9 @@ export const LabelPdf = ({ data }: LabelPdfProps) => (
         <Page size="LETTER" style={styles.page}>
             {/* Label 1 */}
             <View style={styles.labelContainer}>
-                {data.image && (
+                {(data.image || data.imageBase64) && (
                     <View style={styles.imageSection}>
-                        {/* Note: @react-pdf Image requires CORS compatible URLs or base64. 
-                Next.js dev server proxy might be needed if external images fail. 
-                For now assuming the 'crossOrigin' support works or the scraping API returns base64/proxy. 
-                Actually, standard URLs work if CORS allows. */}
-                        <Image src={data.image} style={styles.image} />
+                        <Image src={data.imageBase64 || data.image} style={styles.image} />
                     </View>
                 )}
                 <View style={styles.infoSection}>
@@ -86,9 +84,9 @@ export const LabelPdf = ({ data }: LabelPdfProps) => (
 
             {/* Label 2 */}
             <View style={[styles.labelContainer, styles.labelContainerLast]}>
-                {data.image && (
+                {(data.image || data.imageBase64) && (
                     <View style={styles.imageSection}>
-                        <Image src={data.image} style={styles.image} />
+                        <Image src={data.imageBase64 || data.image} style={styles.image} />
                     </View>
                 )}
                 <View style={styles.infoSection}>
