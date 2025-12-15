@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import QRCode from 'qrcode';
 
 // Dynamically import the PDF Preview wrapper with SSR disabled
 // This isolates all @react-pdf/renderer imports to the client side only
@@ -22,6 +23,7 @@ interface ProductData {
   url: string;
   color?: string;
   colorImage?: string;
+  qrCodeBase64?: string;
 }
 
 export default function Home() {
@@ -51,7 +53,10 @@ export default function Home() {
         throw new Error(json.error || 'Failed to fetch data');
       }
 
-      setData(json);
+      // Generate QR Code
+      const qrCodeBase64 = await QRCode.toDataURL(json.url, { width: 100, margin: 0 });
+
+      setData({ ...json, qrCodeBase64 });
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {

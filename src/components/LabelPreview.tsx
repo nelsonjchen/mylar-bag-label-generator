@@ -12,6 +12,7 @@ interface ProductData {
     url: string;
     color?: string;
     colorImage?: string;
+    qrCodeBase64?: string;
 }
 
 interface LabelPreviewProps {

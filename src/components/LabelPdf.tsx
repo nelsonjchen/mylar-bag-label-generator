@@ -9,6 +9,7 @@ interface ProductData {
     url: string;
     color?: string;
     colorImage?: string;
+    qrCodeBase64?: string;
 }
 
 // Create styles
@@ -35,15 +36,22 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 35,
         bottom: 35,
-        left: 35,
+        left: 45, // Shifted slightly to center the group visually
         right: 35,
+        flexDirection: 'row', // Side by side
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 20,
     },
     image: {
-        width: '100%',
+        flexGrow: 1, // Image takes available space
         height: '100%',
         objectFit: 'contain',
+    },
+    qrCode: {
+        width: 100, // Much larger
+        height: 100,
+        backgroundColor: 'white', // Ensure it stands out
     },
     // Text blocks positioning
     textBlock: {
@@ -77,7 +85,7 @@ const styles = StyleSheet.create({
     textRight: {
         position: 'absolute',
         top: 183,
-        right: -130, // Mirror of left
+        right: -130,
         width: 300,
         height: 30,
         transform: 'rotate(90deg)',
@@ -90,7 +98,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 5,
-        width: '100%', // Ensure it uses the full width for centering
+        width: '100%',
     },
     title: {
         fontSize: 12,
@@ -102,35 +110,34 @@ const styles = StyleSheet.create({
         fontFamily: 'Helvetica',
         color: '#444',
     },
-    source: {
-        position: 'absolute',
-        bottom: 2,
-        right: 5,
-        fontSize: 6,
-        color: '#999',
-        fontFamily: 'Helvetica',
-    },
 });
 
 interface LabelPdfProps {
     data: ProductData;
 }
 
-const TextGroup = ({ data }: { data: ProductData }) => (
-    <View style={styles.textGroup}>
-        <Text style={styles.title}>{data.title}</Text>
-        {data.color && <Text style={styles.colorText}> • {data.color}</Text>}
-    </View>
-);
+const TextGroup = ({ data }: { data: ProductData }) => {
+    const isBambu = data.url.toLowerCase().includes('bambulab');
+    return (
+        <View style={styles.textGroup}>
+            <Text style={styles.title}>{data.title}</Text>
+            {data.color && <Text style={styles.colorText}> • {data.color}</Text>}
+            {isBambu && <Text style={styles.colorText}> • Bambu Lab</Text>}
+        </View>
+    );
+};
 
 const LabelContent = ({ data, style }: { data: ProductData; style?: any }) => (
     <View style={[styles.labelContainer, style]}>
-        {/* Central Image */}
-        {(data.image || data.imageBase64) && (
-            <View style={styles.imageContainer}>
+        {/* Central Area: Image + QR Code */}
+        <View style={styles.imageContainer}>
+            {(data.image || data.imageBase64) && (
                 <Image src={data.imageBase64 || data.image} style={styles.image} />
-            </View>
-        )}
+            )}
+            {data.qrCodeBase64 && (
+                <Image src={data.qrCodeBase64} style={styles.qrCode} />
+            )}
+        </View>
 
         {/* Top Text (Rotated 180) */}
         <View style={[styles.textBlock, styles.textTop]}>
@@ -151,9 +158,6 @@ const LabelContent = ({ data, style }: { data: ProductData; style?: any }) => (
         <View style={styles.textRight}>
             <TextGroup data={data} />
         </View>
-
-        {/* Source (Tiny, bottom right corner) */}
-        <Text style={styles.source}>{data.source}</Text>
     </View>
 );
 
