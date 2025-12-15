@@ -332,6 +332,59 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        <div className="card" style={{ marginTop: '1.5rem', borderTop: '4px solid var(--foreground)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recommended Supplies</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            {/* Mylar Bags */}
+            <a
+              href="https://amzn.to/4qvoRvt"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.25rem',
+                transition: 'border-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--foreground)'}
+              onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+            >
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 600, lineHeight: '1.3' }}>1.5 Gallon Mylar Bags</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>For 1KG spools w/ desiccant</p>
+              <div style={{ fontSize: '0.8rem', color: '#ea580c', fontWeight: 500, marginTop: 'auto', paddingTop: '0.5rem' }}>View on Amazon &rarr;</div>
+            </a>
+
+            {/* Labels */}
+            <a
+              href="https://amzn.to/3N1ngPb"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.25rem',
+                transition: 'border-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--foreground)'}
+              onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+            >
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 600, lineHeight: '1.3' }}>Half Sheet Labels</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>Self-adhesive, size optimized</p>
+              <div style={{ fontSize: '0.8rem', color: '#ea580c', fontWeight: 500, marginTop: 'auto', paddingTop: '0.5rem' }}>View on Amazon &rarr;</div>
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Preview / Print Area */}
