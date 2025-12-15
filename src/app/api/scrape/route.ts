@@ -12,10 +12,25 @@ export async function POST(request: Request) {
     }
 
     // Basic validation
+    let urlObj: URL;
     try {
-      new URL(url);
+      urlObj = new URL(url);
     } catch {
-      return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 });
+    }
+
+    // basic hostname check
+    if (!urlObj.hostname.includes('bambulab.com')) {
+      return NextResponse.json({
+        error: 'Only Bambu Lab store URLs are supported. Please use "Manual Input" for other brands.'
+      }, { status: 400 });
+    }
+
+    // must be a product page
+    if (!urlObj.pathname.includes('/products/')) {
+      return NextResponse.json({
+        error: 'This does not look like a product page. Please use a URL containing "/products/".'
+      }, { status: 400 });
     }
 
     const response = await gotScraping({
@@ -192,6 +207,16 @@ export async function POST(request: Request) {
       } catch (e) {
         console.error('Failed to refetch image for base64', e);
       }
+    }
+
+    // 6. Validation: Ensure it's likely a filament
+    // The user wants to filter out non-filament products (like motors, support pages, etc)
+    const isFilament = title.toLowerCase().includes('filament') || color !== '';
+
+    if (!isFilament) {
+      return NextResponse.json({
+        error: `The product "${title}" does not appear to be a filament. This tool is designed for generating filament labels.`
+      }, { status: 400 });
     }
 
     return NextResponse.json({

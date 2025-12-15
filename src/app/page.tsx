@@ -284,8 +284,23 @@ export default function Home() {
           )}
 
           {error && (
-            <div style={{ color: 'var(--destructive)', marginTop: '0.5rem' }}>
-              Error: {error}
+            <div style={{
+              marginTop: '1rem',
+              padding: '1rem',
+              backgroundColor: '#FEF2F2', // Red-50
+              border: '1px solid #F87171', // Red-400
+              borderRadius: '8px',
+              color: '#991B1B', // Red-800
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}>
+              <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>🚫</span>
+              <div>
+                <strong style={{ display: 'block', marginBottom: '0.25rem', color: '#7F1D1D' }}>Unable to Generate Label</strong>
+                <span style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>{error}</span>
+              </div>
             </div>
           )}
         </div>
