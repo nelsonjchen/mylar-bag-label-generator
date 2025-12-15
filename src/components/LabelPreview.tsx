@@ -17,10 +17,11 @@ interface ProductData {
 
 interface LabelPreviewProps {
     data: ProductData;
+    quantity: number;
 }
 
-export default function LabelPreview({ data }: LabelPreviewProps) {
-    const [instance] = usePDF({ document: <LabelPdf data={data} /> });
+export default function LabelPreview({ data, quantity }: LabelPreviewProps) {
+    const [instance] = usePDF({ document: <LabelPdf data={data} quantity={quantity} /> });
 
     if (instance.loading) {
         return (

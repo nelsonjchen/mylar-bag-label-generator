@@ -38,6 +38,7 @@ export default function Home() {
   const [manualImage, setManualImage] = useState<string>('');
 
   const [url, setUrl] = useState('');
+  const [labelQuantity, setLabelQuantity] = useState(2);
   const [data, setData] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -172,6 +173,33 @@ export default function Home() {
             >
               Manual Input
             </button>
+          </div>
+
+          {/* Label Quantity Settings */}
+          <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '0 0.5rem' }}>
+            <span style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--foreground)' }}>Labels per page:</span>
+            <div style={{ display: 'flex', gap: '1.5rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--foreground)' }}>
+                <input
+                  type="radio"
+                  name="labelQuantity"
+                  checked={labelQuantity === 1}
+                  onChange={() => setLabelQuantity(1)}
+                  style={{ accentColor: 'var(--foreground)' }}
+                />
+                <span style={{ fontSize: '0.9rem' }}>1 Label</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--foreground)' }}>
+                <input
+                  type="radio"
+                  name="labelQuantity"
+                  checked={labelQuantity === 2}
+                  onChange={() => setLabelQuantity(2)}
+                  style={{ accentColor: 'var(--foreground)' }}
+                />
+                <span style={{ fontSize: '0.9rem' }}>2 Labels</span>
+              </label>
+            </div>
           </div>
 
           {mode === 'url' ? (
@@ -316,7 +344,7 @@ export default function Home() {
             </p>
           </div>
 
-          <LabelPreview data={data} />
+          <LabelPreview data={data} quantity={labelQuantity} />
         </div>
       )}
     </main>

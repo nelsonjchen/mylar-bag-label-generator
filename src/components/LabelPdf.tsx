@@ -114,7 +114,10 @@ const styles = StyleSheet.create({
 
 interface LabelPdfProps {
     data: ProductData;
+    quantity?: number;
 }
+
+// ... existing code ...
 
 const TextGroup = ({ data }: { data: ProductData }) => {
     // Check if it's a Bambu URL to decide branding display
@@ -168,11 +171,11 @@ const LabelContent = ({ data, style }: { data: ProductData; style?: any }) => (
     </View>
 );
 
-export const LabelPdf = ({ data }: LabelPdfProps) => (
+export const LabelPdf = ({ data, quantity = 2 }: LabelPdfProps) => (
     <Document>
         <Page size="LETTER" style={styles.page}>
             <LabelContent data={data} />
-            <LabelContent data={data} style={styles.labelContainerLast} />
+            {quantity === 2 && <LabelContent data={data} style={styles.labelContainerLast} />}
         </Page>
     </Document>
 );
