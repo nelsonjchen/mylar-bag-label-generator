@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
         left: -130, // 20 - (300/2)
         width: 300,
         height: 30,
-        transform: 'rotate(-90deg)',
+        transform: 'rotate(90deg)', // Flipped to face outward
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
         right: -130,
         width: 300,
         height: 30,
-        transform: 'rotate(90deg)',
+        transform: 'rotate(-90deg)', // Flipped to face outward
         justifyContent: 'center',
         alignItems: 'center',
     },
