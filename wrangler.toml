@@ -1,4 +1,22 @@
 name = "mylar-bag-label-generator"
+account_id = "c455dc5b9661861484370320794ab63c"
+main = "worker/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".vercel/output/static"
+
+# Container Configuration
+[[containers]]
+image = "./Dockerfile"
+class_name = "MyContainer"
+# max_instances = 1 # Optional: limit instances
+
+# Durable Object Binding for the Container
+[[durable_objects.bindings]]
+name = "MY_CONTAINER"
+class_name = "MyContainer"
+
+# Migration for the Durable Object (Container)
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["MyContainer"]
+

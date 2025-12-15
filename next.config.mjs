@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   // serverExternalPackages: ['@react-pdf/renderer'], // Try disabling this
   transpilePackages: ['@react-pdf/renderer'],
   reactStrictMode: false,
