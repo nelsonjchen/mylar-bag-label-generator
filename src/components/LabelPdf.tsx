@@ -59,9 +59,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        width: 100,
+        width: 140,
         height: '100%',
-        gap: 8,
+        gap: 0,
     },
     // Vertical notes lines extending from QR area into bottom whitespace
     notesContainer: {
