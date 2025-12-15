@@ -34,14 +34,14 @@ const styles = StyleSheet.create({
     // The central area for the image, with margins for text
     imageContainer: {
         position: 'absolute',
-        top: 35,
-        bottom: 35,
-        left: 45, // Shifted slightly to center the group visually
-        right: 35,
+        top: 60,
+        bottom: 60,
+        left: 60,
+        right: 60,
         flexDirection: 'row', // Side by side
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 20,
+        gap: 15,
     },
     image: {
         flexGrow: 1, // Image takes available space
@@ -60,14 +60,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textTop: {
-        top: 5,
+        top: 20,
         left: 0,
         right: 0,
         height: 30,
         transform: 'rotate(180deg)',
     },
     textBottom: {
-        bottom: 5,
+        bottom: 20,
         left: 0,
         right: 0,
         height: 30,
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     textLeft: {
         position: 'absolute',
         top: 183, // (396/2) - (30/2)
-        left: -130, // 20 - (300/2)
+        left: -115, // 35 - (300/2) => Center at 35px from edge
         width: 300,
         height: 30,
         transform: 'rotate(90deg)', // Flipped to face outward
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     textRight: {
         position: 'absolute',
         top: 183,
-        right: -130,
+        right: -115, // Center at 35px from right edge
         width: 300,
         height: 30,
         transform: 'rotate(-90deg)', // Flipped to face outward
@@ -101,12 +101,12 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     title: {
-        fontSize: 12,
+        fontSize: 10,
         fontFamily: 'Helvetica-Bold',
         textAlign: 'center',
     },
     colorText: {
-        fontSize: 10,
+        fontSize: 8,
         fontFamily: 'Helvetica',
         color: '#444',
     },
