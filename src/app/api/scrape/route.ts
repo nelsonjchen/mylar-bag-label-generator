@@ -111,10 +111,19 @@ export async function POST(request: Request) {
     // 4. Extract Color / Variant Info
     let color = '';
     let colorImage = '';
-
     try {
-      const urlObj = new URL(url);
-      const variantId = urlObj.searchParams.get('variant') || urlObj.searchParams.get('id');
+      const parsedUrl = new URL(url);
+      const variantId = parsedUrl.searchParams.get('variant') || parsedUrl.searchParams.get('id');
+
+      console.log('Scrape Request:', { url, variantId });
+
+
+      // NEW: Validation - User must select a variant
+      if (!variantId) {
+        return NextResponse.json({
+          error: 'Please select a specific color/option on the Bambu Lab page, then copy the URL (it should have a ?variant=... or ?id=... part).'
+        }, { status: 400 });
+      }
 
       if (variantId) {
         const escapedIdPattern = `\\\\\"id\\\\\":\\\\\"${variantId}\\\\\"`;
