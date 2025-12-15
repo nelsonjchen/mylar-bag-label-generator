@@ -20,6 +20,8 @@ interface ProductData {
   image: string;
   source: string;
   url: string;
+  color?: string;
+  colorImage?: string;
 }
 
 export default function Home() {

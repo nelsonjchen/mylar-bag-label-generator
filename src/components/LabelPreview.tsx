@@ -10,6 +10,8 @@ interface ProductData {
     imageBase64?: string;
     source: string;
     url: string;
+    color?: string;
+    colorImage?: string;
 }
 
 interface LabelPreviewProps {

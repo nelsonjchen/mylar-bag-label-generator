@@ -93,12 +93,46 @@ export async function POST(request: Request) {
       }
     }
 
+    // 4. Extract Color / Variant Info
+    let color = '';
+    let colorImage = '';
+
+    try {
+      const urlObj = new URL(url);
+      const variantId = urlObj.searchParams.get('variant') || urlObj.searchParams.get('id');
+
+      if (variantId) {
+        const escapedIdPattern = `\\\\\"id\\\\\":\\\\\"${variantId}\\\\\"`;
+        const variantBlockRegex = new RegExp(`${escapedIdPattern}.*?\\\\\"value\\\\\":\\\\\"([^\\\"]+)\\\\\"`);
+        const variantMatch = html.match(variantBlockRegex);
+
+        if (variantMatch) {
+          color = variantMatch[1];
+          const colorUrlRegex = new RegExp(`${escapedIdPattern}.*?\\\\\"colorUrl\\\\\":\\\\\"([^\\\"]+)\\\\\"`);
+          const urlMatch = html.match(colorUrlRegex);
+          if (urlMatch) {
+            colorImage = urlMatch[1];
+          }
+        } else {
+          const unescapedRegex = new RegExp(`"id":"${variantId}".*?"value":"([^"]+)"`);
+          const m2 = html.match(unescapedRegex);
+          if (m2) {
+            color = m2[1];
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error extracting variant:', e);
+    }
+
     return NextResponse.json({
       title: title.trim(),
       image,
       imageBase64,
       source: new URL(url).hostname,
-      url: url
+      url: url,
+      color,
+      colorImage
     });
 
   } catch (error: any) {

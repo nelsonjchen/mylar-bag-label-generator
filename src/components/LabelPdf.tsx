@@ -7,6 +7,8 @@ interface ProductData {
     imageBase64?: string;
     source: string;
     url: string;
+    color?: string;
+    colorImage?: string;
 }
 
 // Create styles
@@ -49,10 +51,28 @@ const styles = StyleSheet.create({
         paddingLeft: 0,
     },
     title: {
-        fontSize: 36, // Much larger title
-        marginBottom: 15,
+        fontSize: 24, // Slightly smaller to fit color
+        marginBottom: 10,
         fontFamily: 'Helvetica-Bold',
         lineHeight: 1.2,
+    },
+    colorContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    colorText: {
+        fontSize: 14,
+        fontFamily: 'Helvetica',
+        color: '#000',
+    },
+    colorSwatch: {
+        width: 20,
+        height: 20,
+        marginLeft: 10,
+        borderRadius: 4,
+        backgroundColor: '#f0f0f0',
+        objectFit: 'cover',
     },
     source: {
         fontSize: 12,
@@ -78,6 +98,14 @@ export const LabelPdf = ({ data }: LabelPdfProps) => (
                 )}
                 <View style={styles.infoSection}>
                     <Text style={styles.title}>{data.title}</Text>
+                    {data.color && (
+                        <View style={styles.colorContainer}>
+                            <Text style={styles.colorText}>Color: {data.color}</Text>
+                            {data.colorImage && (
+                                <Image src={data.colorImage} style={styles.colorSwatch} />
+                            )}
+                        </View>
+                    )}
                     <Text style={styles.source}>SOURCE: {data.source}</Text>
                 </View>
             </View>
@@ -91,6 +119,14 @@ export const LabelPdf = ({ data }: LabelPdfProps) => (
                 )}
                 <View style={styles.infoSection}>
                     <Text style={styles.title}>{data.title}</Text>
+                    {data.color && (
+                        <View style={styles.colorContainer}>
+                            <Text style={styles.colorText}>Color: {data.color}</Text>
+                            {data.colorImage && (
+                                <Image src={data.colorImage} style={styles.colorSwatch} />
+                            )}
+                        </View>
+                    )}
                     <Text style={styles.source}>SOURCE: {data.source}</Text>
                 </View>
             </View>
