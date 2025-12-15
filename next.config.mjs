@@ -4,9 +4,7 @@ const nextConfig = {
   // serverExternalPackages: ['@react-pdf/renderer'], // Try disabling this
   transpilePackages: ['@react-pdf/renderer'],
   reactStrictMode: false,
-  experimental: {
-    serverComponentsExternalPackages: ['got-scraping', 'header-generator'],
-  },
+  serverExternalPackages: ['got-scraping', 'header-generator'],
   webpack: (config, { isServer, webpack }) => {
     config.resolve.alias.canvas = false;
 
