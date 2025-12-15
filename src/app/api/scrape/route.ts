@@ -39,6 +39,10 @@ export async function POST(request: Request) {
         browsers: [{ name: 'chrome', minVersion: 120 }],
         devices: ['desktop'],
         locales: ['en-US'],
+      },
+      headers: {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
       }
     });
 
@@ -220,7 +224,18 @@ export async function POST(request: Request) {
 
     // 6. Validation: Ensure it's likely a filament
     // The user wants to filter out non-filament products (like motors, support pages, etc)
-    const isFilament = title.toLowerCase().includes('filament') || color !== '';
+    const titleLower = title.toLowerCase();
+    const isFilament =
+      titleLower.includes('filament') ||
+      titleLower.includes('pla') ||
+      titleLower.includes('petg') ||
+      titleLower.includes('abs') ||
+      titleLower.includes('asa') ||
+      titleLower.includes('tpu') ||
+      titleLower.includes('pc') ||
+      titleLower.includes('pa') ||
+      titleLower.includes('pva') ||
+      color !== '';
 
     if (!isFilament) {
       return NextResponse.json({
