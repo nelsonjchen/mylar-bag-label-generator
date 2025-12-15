@@ -51,9 +51,32 @@ const styles = StyleSheet.create({
         objectFit: 'contain',
     },
     qrCode: {
-        width: 100, // Much larger
-        height: 100,
-        backgroundColor: 'white', // Ensure it stands out
+        width: 80,
+        height: 80,
+        backgroundColor: 'white',
+    },
+    rightColumn: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        width: 100,
+        height: '100%',
+        gap: 8,
+    },
+    notesContainer: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'stretch',
+        width: '100%',
+        flexGrow: 1,
+        paddingTop: 5,
+    },
+    noteLine: {
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#999',
+        borderBottomStyle: 'solid',
+        marginBottom: 14,
+        width: '100%',
     },
     // Text blocks positioning
     textBlock: {
@@ -147,14 +170,27 @@ const TextGroup = ({ data }: { data: ProductData }) => {
 
 const LabelContent = ({ data, style }: { data: ProductData; style?: any }) => (
     <View style={[styles.labelContainer, style]}>
-        {/* Central Area: Image + QR Code */}
+        {/* Central Area: Image + QR Code + Notes */}
         <View style={styles.imageContainer}>
             {(data.image || data.imageBase64) && (
                 <Image src={data.imageBase64 || data.image} style={styles.image} />
             )}
-            {data.qrCodeBase64 && (
-                <Image src={data.qrCodeBase64} style={styles.qrCode} />
-            )}
+            {/* QR Code + Notes Column */}
+            <View style={styles.rightColumn}>
+                {data.qrCodeBase64 && (
+                    <Image src={data.qrCodeBase64} style={styles.qrCode} />
+                )}
+                {/* Handwritten notes lines */}
+                <View style={styles.notesContainer}>
+                    <View style={styles.noteLine} />
+                    <View style={styles.noteLine} />
+                    <View style={styles.noteLine} />
+                    <View style={styles.noteLine} />
+                    <View style={styles.noteLine} />
+                    <View style={styles.noteLine} />
+                    <View style={styles.noteLine} />
+                </View>
+            </View>
         </View>
 
         {/* Top Text (Rotated 180) */}
