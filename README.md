@@ -3,14 +3,18 @@
 This project generates printable labels for your 3D printer filament storage (Mylar bags).
 Input a Bambu Store URL, and it will generate a clean, professional PDF with two labels per page, including the product image and name.
 
+### Purpose
+Perfect for labeling Mylar bags with filament. Mylar bags often aren't transparent but come in 1.5gal sizes which are ideal for filament storage.
+
 ## Features
 
 - **Automated Scraping**: Fetches product name and image from Bambu Store URLs.
+- **Manual Input**: Option to manually enter product details for custom labels.
 - **Print Optimization**: Formatted specifically for Letter-sized paper (2 labels per page).
 - **Premium UI**: Clean, dark-mode interface for easy interaction.
 
 > [!IMPORTANT]
-> **Compatibility Note**: This generator is currently designed and optimized exclusively for **Bambu Lab** filament product pages. Other store URLs are not supported.
+> **Compatibility Note**: The automated scraper is currently designed and optimized exclusively for **Bambu Lab** filament product pages. For other filaments, use the **Manual Input** mode.
 
 ## Getting Started
 
@@ -28,7 +32,8 @@ Input a Bambu Store URL, and it will generate a clean, professional PDF with two
     Navigate to [http://localhost:3000](http://localhost:3000).
 
 4.  **Usage**:
-    - Paste a URL (e.g., `https://us.store.bambulab.com/products/pla-basic-filament?id=40475106640008`).
+    - **Scrape**: Paste a Bambu Lab URL (e.g., `https://us.store.bambulab.com/products/pla-basic-filament?id=40475106640008`) and click **Generate**.
+    - **Manual**: Provide product details yourself if you prefer or for non-Bambu filaments.
     - Click **Generate**.
     - Click **Print Labels** (or Ctrl+P / Cmd+P).
     - Ensure "Background graphics" is enabled in your print dialog if images don't appear.
