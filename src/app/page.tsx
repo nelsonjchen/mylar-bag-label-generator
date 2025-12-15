@@ -187,7 +187,7 @@ export default function Home() {
                   onChange={() => setLabelQuantity(1)}
                   style={{ accentColor: 'var(--foreground)' }}
                 />
-                <span style={{ fontSize: '0.9rem' }}>1 Label</span>
+                <span style={{ fontSize: '0.9rem' }}>1 Label for one side of bag</span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--foreground)' }}>
                 <input
@@ -197,7 +197,7 @@ export default function Home() {
                   onChange={() => setLabelQuantity(2)}
                   style={{ accentColor: 'var(--foreground)' }}
                 />
-                <span style={{ fontSize: '0.9rem' }}>2 Labels</span>
+                <span style={{ fontSize: '0.9rem' }}>2 Labels for both sides of bag</span>
               </label>
             </div>
           </div>
