@@ -19,6 +19,7 @@ const LabelPreview = dynamic(() => import('../components/LabelPreview'), {
 interface ProductData {
   title: string;
   image: string;
+  imageBase64?: string;
   source: string;
   url: string;
   color?: string;
@@ -27,10 +28,62 @@ interface ProductData {
 }
 
 export default function Home() {
+  const [mode, setMode] = useState<'url' | 'manual'>('url');
+
+  // Manual Input State
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualColor, setManualColor] = useState('');
+  const [manualBrand, setManualBrand] = useState('');
+  const [manualUrl, setManualUrl] = useState('');
+  const [manualImage, setManualImage] = useState<string>('');
+
   const [url, setUrl] = useState('');
   const [data, setData] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setManualImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleManualGenerate = async () => {
+    if (!manualTitle) {
+      setError('Product Name is required');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setData(null);
+
+    try {
+      let qrCodeBase64 = '';
+      if (manualUrl) {
+        qrCodeBase64 = await QRCode.toDataURL(manualUrl, { width: 100, margin: 0 });
+      }
+
+      setData({
+        title: manualTitle,
+        color: manualColor,
+        source: manualBrand,
+        image: manualImage, // base64 directly
+        imageBase64: manualImage,
+        url: manualUrl || '',
+        qrCodeBase64
+      });
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate label');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGenerate = async () => {
     // ... existing logic ...
@@ -71,52 +124,164 @@ export default function Home() {
         <header className="header">
           <h1>Mylar Bag Label Generator</h1>
           <p>
-            Generate professional labels for your <strong>Bambu Lab</strong> filament storage.
+            Generate professional labels for your filament storage.
           </p>
-          <p style={{
-            fontSize: '0.8rem',
-            color: 'var(--muted-foreground)',
-            marginTop: '0.5rem',
-            backgroundColor: 'rgba(255, 165, 0, 0.1)',
-            padding: '0.25rem 0.5rem',
-            borderRadius: '4px',
-            display: 'inline-block',
-            border: '1px solid rgba(255, 165, 0, 0.2)'
-          }}>
-            ⚠️ Currently supports Bambu Lab store URLs only
-          </p>
+          {mode === 'url' && (
+            <p style={{
+              fontSize: '0.8rem',
+              color: 'var(--muted-foreground)',
+              marginTop: '0.5rem',
+              backgroundColor: 'rgba(255, 165, 0, 0.1)',
+              padding: '0.25rem 0.5rem',
+              borderRadius: '4px',
+              display: 'inline-block',
+              border: '1px solid rgba(255, 165, 0, 0.2)'
+            }}>
+              ⚠️ Currently supports Bambu Lab store URLs only for auto-scraping
+            </p>
+          )}
         </header>
 
         <div className="card">
-          <div className="input-group">
-            <input
-              type="text"
-              placeholder="Paste Bambu Store URL here..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-            />
-            <button onClick={handleGenerate} disabled={loading}>
-              {loading ? 'Gener...' : 'Generate'}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+            <button
+              onClick={() => { setMode('url'); setError(''); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                borderBottom: mode === 'url' ? '2px solid var(--foreground)' : '2px solid transparent',
+                color: mode === 'url' ? 'var(--foreground)' : 'var(--muted-foreground)',
+                fontWeight: mode === 'url' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                padding: '0.5rem'
+              }}
+            >
+              Bambu URL
+            </button>
+            <button
+              onClick={() => { setMode('manual'); setError(''); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                borderBottom: mode === 'manual' ? '2px solid var(--foreground)' : '2px solid transparent',
+                color: mode === 'manual' ? 'var(--foreground)' : 'var(--muted-foreground)',
+                fontWeight: mode === 'manual' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                padding: '0.5rem'
+              }}
+            >
+              Manual Input
             </button>
           </div>
 
-          <div style={{ marginBottom: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
-            <span style={{ color: 'var(--muted-foreground)', marginRight: '0.5rem' }}>No URL handy?</span>
-            <button
-              onClick={() => setUrl('https://us.store.bambulab.com/products/pla-silk-upgrade?variant=564681970696351763')}
-              style={{
-                background: 'transparent',
-                border: '1px solid var(--border)',
-                color: 'var(--foreground)',
-                height: 'auto',
-                padding: '0.4rem 0.8rem',
-                fontSize: '0.8rem'
-              }}
-            >
-              Load Demo URL
-            </button>
-          </div>
+          {mode === 'url' ? (
+            <>
+              <div className="input-group">
+                <input
+                  type="text"
+                  placeholder="Paste Bambu Store URL here..."
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                />
+                <button onClick={handleGenerate} disabled={loading}>
+                  {loading ? 'Gener...' : 'Generate'}
+                </button>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
+                <span style={{ color: 'var(--muted-foreground)', marginRight: '0.5rem' }}>No URL handy?</span>
+                <button
+                  onClick={() => setUrl('https://us.store.bambulab.com/products/pla-silk-upgrade?variant=564681970696351763')}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--border)',
+                    color: 'var(--foreground)',
+                    height: 'auto',
+                    padding: '0.4rem 0.8rem',
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  Load Demo URL
+                </button>
+              </div>
+            </>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Filament Name <span style={{ color: 'red' }}>*</span></label>
+                <input
+                  type="text"
+                  value={manualTitle}
+                  onChange={(e) => setManualTitle(e.target.value)}
+                  placeholder="e.g. PLA Basic"
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Color</label>
+                  <input
+                    type="text"
+                    value={manualColor}
+                    onChange={(e) => setManualColor(e.target.value)}
+                    placeholder="e.g. Red"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Brand</label>
+                  <input
+                    type="text"
+                    value={manualBrand}
+                    onChange={(e) => setManualBrand(e.target.value)}
+                    placeholder="e.g. Sunlu"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Product Image (Optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: '4px' }}
+                />
+                {manualImage && <p style={{ fontSize: '0.8rem', color: 'green', marginTop: '0.25rem' }}>Image loaded ✓</p>}
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Product URL (for QR Code)</label>
+                <input
+                  type="text"
+                  value={manualUrl}
+                  onChange={(e) => setManualUrl(e.target.value)}
+                  placeholder="https://..."
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
+                />
+              </div>
+
+              <button
+                onClick={handleManualGenerate}
+                disabled={loading}
+                style={{
+                  marginTop: '0.5rem',
+                  backgroundColor: 'var(--foreground)',
+                  color: 'var(--background)',
+                  padding: '0.75rem',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                {loading ? 'Generating...' : 'Generate Label'}
+              </button>
+            </div>
+          )}
 
           {error && (
             <div style={{ color: 'var(--destructive)', marginTop: '0.5rem' }}>

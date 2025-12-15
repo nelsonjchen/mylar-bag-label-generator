@@ -117,12 +117,19 @@ interface LabelPdfProps {
 }
 
 const TextGroup = ({ data }: { data: ProductData }) => {
-    const isBambu = data.url.toLowerCase().includes('bambulab');
+    // Check if it's a Bambu URL to decide branding display
+    const isBambu = data.url?.toLowerCase().includes('bambulab') || data.url?.toLowerCase().includes('bambulab.com');
+
+    // Determine the brand text to display
+    // If it's Bambu, show "Bambu Lab"
+    // If it's manual/other, show data.source (Brand) if available
+    const brandName = isBambu ? 'Bambu Lab' : data.source;
+
     return (
         <View style={styles.textGroup}>
             <Text style={styles.title}>{data.title}</Text>
             {data.color && <Text style={styles.colorText}> • {data.color}</Text>}
-            {isBambu && <Text style={styles.colorText}> • Bambu Lab</Text>}
+            {brandName && <Text style={styles.colorText}> • {brandName}</Text>}
         </View>
     );
 };
