@@ -25,6 +25,8 @@ interface ProductData {
   color?: string;
   colorImage?: string;
   qrCodeBase64?: string;
+  dryingTemp?: string;
+  dryingDuration?: string;
 }
 
 export default function Home() {
@@ -36,6 +38,8 @@ export default function Home() {
   const [manualBrand, setManualBrand] = useState('');
   const [manualUrl, setManualUrl] = useState('');
   const [manualImage, setManualImage] = useState<string>('');
+  const [manualDryingTemp, setManualDryingTemp] = useState('');
+  const [manualDryingDuration, setManualDryingDuration] = useState('');
 
   const [url, setUrl] = useState('');
   const [labelQuantity, setLabelQuantity] = useState(2);
@@ -78,7 +82,9 @@ export default function Home() {
         image: manualImage, // base64 directly
         imageBase64: manualImage,
         url: manualUrl || '',
-        qrCodeBase64
+        qrCodeBase64,
+        dryingTemp: manualDryingTemp || undefined,
+        dryingDuration: manualDryingDuration || undefined,
       });
     } catch (err: any) {
       setError(err.message || 'Failed to generate label');
@@ -300,6 +306,29 @@ export default function Home() {
                   placeholder="https://..."
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
                 />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Drying Temp</label>
+                  <input
+                    type="text"
+                    value={manualDryingTemp}
+                    onChange={(e) => setManualDryingTemp(e.target.value)}
+                    placeholder="e.g. 65°C"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Drying Duration</label>
+                  <input
+                    type="text"
+                    value={manualDryingDuration}
+                    onChange={(e) => setManualDryingDuration(e.target.value)}
+                    placeholder="e.g. 6h"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
+                  />
+                </div>
               </div>
 
               <button

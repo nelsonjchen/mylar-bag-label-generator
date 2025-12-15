@@ -10,6 +10,8 @@ interface ProductData {
     color?: string;
     colorImage?: string;
     qrCodeBase64?: string;
+    dryingTemp?: string;
+    dryingDuration?: string;
 }
 
 // Create styles
@@ -128,11 +130,17 @@ const TextGroup = ({ data }: { data: ProductData }) => {
     // If it's manual/other, show data.source (Brand) if available
     const brandName = isBambu ? 'Bambu Lab' : data.source;
 
+    // Format drying info if available
+    const dryingInfo = (data.dryingTemp && data.dryingDuration)
+        ? `${data.dryingTemp} ${data.dryingDuration}`
+        : '';
+
     return (
         <View style={styles.textGroup}>
             <Text style={styles.title}>{data.title}</Text>
             {data.color && <Text style={styles.colorText}> • {data.color}</Text>}
             {brandName && <Text style={styles.colorText}> • {brandName}</Text>}
+            {dryingInfo && <Text style={styles.colorText}> • {dryingInfo}</Text>}
         </View>
     );
 };

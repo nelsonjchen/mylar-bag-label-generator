@@ -13,6 +13,8 @@ interface ProductData {
     color?: string;
     colorImage?: string;
     qrCodeBase64?: string;
+    dryingTemp?: string;
+    dryingDuration?: string;
 }
 
 interface LabelPreviewProps {

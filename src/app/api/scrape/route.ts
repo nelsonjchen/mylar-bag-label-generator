@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { gotScraping } from 'got-scraping';
 import { scrapeCache, getCacheKey } from '@/lib/cache';
+import { extractFilamentType, getDryingParameters } from '@/data/dryingParameters';
 
 export const runtime = 'nodejs'; // Must be nodejs for got-scraping
 
@@ -259,6 +260,10 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
+    // 7. Auto-detect drying parameters
+    const filamentType = extractFilamentType(title);
+    const dryingParams = filamentType ? getDryingParameters(filamentType) : undefined;
+
     const responseData = {
       title: title.trim(),
       image,
@@ -266,7 +271,9 @@ export async function POST(request: Request) {
       source: new URL(url).hostname,
       url: url,
       color,
-      colorImage
+      colorImage,
+      dryingTemp: dryingParams?.temperature,
+      dryingDuration: dryingParams?.duration,
     };
 
     // Store in cache
