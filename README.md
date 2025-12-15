@@ -9,6 +9,9 @@ Input a Bambu Store URL, and it will generate a clean, professional PDF with two
 - **Print Optimization**: Formatted specifically for Letter-sized paper (2 labels per page).
 - **Premium UI**: Clean, dark-mode interface for easy interaction.
 
+> [!IMPORTANT]
+> **Compatibility Note**: This generator is currently designed and optimized exclusively for **Bambu Lab** filament product pages. Other store URLs are not supported.
+
 ## Getting Started
 
 1.  **Install Dependencies**:

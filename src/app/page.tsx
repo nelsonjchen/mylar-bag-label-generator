@@ -70,7 +70,21 @@ export default function Home() {
       <div className="no-print">
         <header className="header">
           <h1>Mylar Bag Label Generator</h1>
-          <p>Generate professional labels for your filament storage.</p>
+          <p>
+            Generate professional labels for your <strong>Bambu Lab</strong> filament storage.
+          </p>
+          <p style={{
+            fontSize: '0.8rem',
+            color: 'var(--muted-foreground)',
+            marginTop: '0.5rem',
+            backgroundColor: 'rgba(255, 165, 0, 0.1)',
+            padding: '0.25rem 0.5rem',
+            borderRadius: '4px',
+            display: 'inline-block',
+            border: '1px solid rgba(255, 165, 0, 0.2)'
+          }}>
+            ⚠️ Currently supports Bambu Lab store URLs only
+          </p>
         </header>
 
         <div className="card">
