@@ -5,14 +5,9 @@ const nextConfig = {
   transpilePackages: ['@react-pdf/renderer'],
   // Do NOT add @react-pdf/renderer to serverExternalPackages for client-side rendering
   serverExternalPackages: ['got-scraping', 'header-generator'],
+
   experimental: {
     // This is often needed for react-pdf in refined Next.js environments
-    turbo: {
-      resolveAlias: {
-        canvas: './empty-module.js',
-      },
-    },
-    esmExternals: 'loose',
   },
   webpack: (config, { isServer, webpack }) => {
     config.resolve.alias.canvas = false;
