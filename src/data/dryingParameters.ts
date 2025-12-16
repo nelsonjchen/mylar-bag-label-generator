@@ -6,6 +6,7 @@
  * These values are for Forced-Air Oven / Dedicated Dryer (e.g., Space Pi X4)
  * 
  * AUTO-GENERATED - Run `npx tsx scripts/scrape-drying-params.ts` to update
+ * Note: The warning functions below are maintained in the script template.
  */
 
 export interface DryingParameters {
@@ -101,6 +102,70 @@ export function extractFilamentType(title: string): string | undefined {
     if (normalizedTitle.includes(type.toUpperCase())) {
       return type;
     }
+  }
+  
+  return undefined;
+}
+
+/**
+ * Filament warning types for special storage/handling instructions
+ */
+export interface FilamentWarning {
+  type: 'PA_MOISTURE' | 'PC_BRITTLENESS';
+  shortText: string;
+  fullText: string;
+}
+
+/**
+ * PA-based filament types that are highly hygroscopic
+ */
+const PA_BASED_TYPES = ['PA', 'PA-CF', 'PA-GF', 'PAHT-CF', 'PAHT-GF', 'PAHT', 'PPA-CF', 'PPA-GF', 'PPA'];
+
+/**
+ * Check if a filament type is PA-based (Polyamide/Nylon based)
+ */
+function isPABasedFilament(filamentType: string): boolean {
+  const normalized = filamentType.toUpperCase();
+  return PA_BASED_TYPES.some(type => normalized.includes(type.toUpperCase()));
+}
+
+/**
+ * Check if a filament type is PC (Polycarbonate)
+ */
+function isPCFilament(filamentType: string): boolean {
+  const normalized = filamentType.toUpperCase();
+  // Match PC but not PPC or other variants that contain PC
+  return normalized === 'PC' || 
+         normalized.startsWith('PC-') || 
+         normalized.startsWith('PC ') ||
+         normalized.includes(' PC ') ||
+         normalized.endsWith(' PC');
+}
+
+/**
+ * Get storage/handling warning for specific filament types
+ * PA-based filaments: Absorb significant moisture after ~3 months in open air.
+ *   Becomes very difficult to dry with standard 80-90°C ovens.
+ * PC filaments: May become brittle after repeated drying cycles due to thermal stress.
+ * 
+ * @param filamentType - The type of filament
+ * @returns Warning info or undefined if no special warning needed
+ */
+export function getFilamentWarning(filamentType: string): FilamentWarning | undefined {
+  if (isPABasedFilament(filamentType)) {
+    return {
+      type: 'PA_MOISTURE',
+      shortText: '⚠️ Store sealed with desiccant!',
+      fullText: 'PA filaments absorb significant moisture after ~3 months in open air. Becomes very difficult to dry with standard 80-90°C ovens. Store sealed with desiccants if not used for extended periods.',
+    };
+  }
+  
+  if (isPCFilament(filamentType)) {
+    return {
+      type: 'PC_BRITTLENESS',
+      shortText: '⚠️ Avoid repeated drying cycles!',
+      fullText: 'PC may become brittle after repeated drying cycles due to thermal stress. After drying, keep sealed with desiccants. If well-protected, may need little or no re-drying.',
+    };
   }
   
   return undefined;

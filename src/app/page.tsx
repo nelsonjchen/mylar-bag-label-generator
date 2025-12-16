@@ -234,20 +234,48 @@ export default function Home() {
               </div>
 
               <div style={{ marginBottom: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
-                <span style={{ color: 'var(--muted-foreground)', marginRight: '0.5rem' }}>No URL handy?</span>
-                <button
-                  onClick={() => setUrl('https://us.store.bambulab.com/products/pla-silk-upgrade?variant=564681970696351763')}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid var(--border)',
-                    color: 'var(--foreground)',
-                    height: 'auto',
-                    padding: '0.4rem 0.8rem',
-                    fontSize: '0.8rem'
-                  }}
-                >
-                  Load Demo URL
-                </button>
+                <span style={{ color: 'var(--muted-foreground)', marginRight: '0.5rem' }}>No URL handy? Try:</span>
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => setUrl('https://us.store.bambulab.com/products/pla-silk-upgrade?variant=564681970696351763')}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--border)',
+                      color: 'var(--foreground)',
+                      height: 'auto',
+                      padding: '0.4rem 0.8rem',
+                      fontSize: '0.8rem'
+                    }}
+                  >
+                    PLA Silk
+                  </button>
+                  <button
+                    onClick={() => setUrl('https://us.store.bambulab.com/products/pc-filament?id=40741214617736')}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--border)',
+                      color: 'var(--foreground)',
+                      height: 'auto',
+                      padding: '0.4rem 0.8rem',
+                      fontSize: '0.8rem'
+                    }}
+                  >
+                    PC ⚠️
+                  </button>
+                  <button
+                    onClick={() => setUrl('https://us.store.bambulab.com/products/pa6-gf?id=41924135714952')}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--border)',
+                      color: 'var(--foreground)',
+                      height: 'auto',
+                      padding: '0.4rem 0.8rem',
+                      fontSize: '0.8rem'
+                    }}
+                  >
+                    PA6-GF ⚠️
+                  </button>
+                </div>
               </div>
             </>
           ) : (

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
+import { getFilamentWarning, extractFilamentType } from '@/data/dryingParameters';
 
 interface ProductData {
     title: string;
@@ -12,6 +13,7 @@ interface ProductData {
     qrCodeBase64?: string;
     dryingTemp?: string;
     dryingDuration?: string;
+    warning?: string;
 }
 
 // Create styles
@@ -79,6 +81,22 @@ const styles = StyleSheet.create({
         borderLeftColor: '#999',
         borderLeftStyle: 'solid',
         height: '100%',
+    },
+    warningContainer: {
+        marginTop: 10,
+        width: '100%',
+        backgroundColor: '#fff8e6',
+        borderWidth: 1,
+        borderColor: '#e6a800',
+        borderStyle: 'solid',
+        padding: 4,
+        borderRadius: 3,
+    },
+    warningText: {
+        fontSize: 7,
+        fontFamily: 'Helvetica',
+        color: '#8a6500',
+        lineHeight: 1.3,
     },
     // Text blocks positioning
     textBlock: {
@@ -170,51 +188,66 @@ const TextGroup = ({ data }: { data: ProductData }) => {
     );
 };
 
-const LabelContent = ({ data, style }: { data: ProductData; style?: any }) => (
-    <View style={[styles.labelContainer, style]}>
-        {/* Central Area: Image + QR Code */}
-        <View style={styles.imageContainer}>
-            {(data.image || data.imageBase64) && (
-                <Image src={data.imageBase64 || data.image} style={styles.image} />
-            )}
-            {/* QR Code Column */}
-            <View style={styles.rightColumn}>
-                {data.qrCodeBase64 && (
-                    <Image src={data.qrCodeBase64} style={styles.qrCode} />
+const LabelContent = ({ data, style }: { data: ProductData; style?: any }) => {
+    // Determine if there's a filament warning to display
+    const filamentType = extractFilamentType(data.title);
+    const warning = filamentType ? getFilamentWarning(filamentType) : undefined;
+
+    return (
+        <View style={[styles.labelContainer, style]}>
+            {/* Central Area: Image + QR Code */}
+            <View style={styles.imageContainer}>
+                {(data.image || data.imageBase64) && (
+                    <Image src={data.imageBase64 || data.image} style={styles.image} />
                 )}
+                {/* QR Code Column */}
+                <View style={styles.rightColumn}>
+                    {data.qrCodeBase64 && (
+                        <Image src={data.qrCodeBase64} style={styles.qrCode} />
+                    )}
+
+                    {/* Filament Warning (if applicable) */}
+                    {warning && (
+                        <View style={styles.warningContainer}>
+                            <Text style={styles.warningText}>{warning.shortText}</Text>
+                            <Text style={[styles.warningText, { marginTop: 2 }]}>{warning.fullText}</Text>
+                        </View>
+                    )}
+                </View>
+            </View>
+
+            {/* Vertical handwritten notes lines in right whitespace */}
+            <View style={[styles.notesContainer, warning ? { top: 230 } : {}]}>
+                <View style={styles.noteLine} />
+                <View style={styles.noteLine} />
+                <View style={styles.noteLine} />
+                <View style={styles.noteLine} />
+                <View style={styles.noteLine} />
+                <View style={styles.noteLine} />
+            </View>
+
+            {/* Top Text (Rotated 180) */}
+            <View style={[styles.textBlock, styles.textTop]}>
+                <TextGroup data={data} />
+            </View>
+
+            {/* Bottom Text (Normal) */}
+            <View style={[styles.textBlock, styles.textBottom]}>
+                <TextGroup data={data} />
+            </View>
+
+            {/* Left Text (Rotated -90) */}
+            <View style={styles.textLeft}>
+                <TextGroup data={data} />
+            </View>
+
+            {/* Right Text (Rotated 90) */}
+            <View style={styles.textRight}>
+                <TextGroup data={data} />
             </View>
         </View>
-
-        {/* Vertical handwritten notes lines in right whitespace */}
-        <View style={styles.notesContainer}>
-            <View style={styles.noteLine} />
-            <View style={styles.noteLine} />
-            <View style={styles.noteLine} />
-            <View style={styles.noteLine} />
-            <View style={styles.noteLine} />
-        </View>
-
-        {/* Top Text (Rotated 180) */}
-        <View style={[styles.textBlock, styles.textTop]}>
-            <TextGroup data={data} />
-        </View>
-
-        {/* Bottom Text (Normal) */}
-        <View style={[styles.textBlock, styles.textBottom]}>
-            <TextGroup data={data} />
-        </View>
-
-        {/* Left Text (Rotated -90) */}
-        <View style={styles.textLeft}>
-            <TextGroup data={data} />
-        </View>
-
-        {/* Right Text (Rotated 90) */}
-        <View style={styles.textRight}>
-            <TextGroup data={data} />
-        </View>
-    </View>
-);
+    );
+};
 
 export const LabelPdf = ({ data, quantity = 2 }: LabelPdfProps) => (
     <Document>
