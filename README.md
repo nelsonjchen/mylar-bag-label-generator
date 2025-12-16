@@ -4,6 +4,9 @@ This project generates printable labels for your 3D printer filament storage (My
 Input a Bambu Store URL, and it will generate a clean, professional PDF with two labels per page, including the product image and name.
 
 ### Purpose
+
+Hosted at: https://mylar-bag-label-generator.mindflakes.com/
+
 Perfect for labeling Mylar bags with filament. Mylar bags often aren't transparent but come in 1.5gal sizes which are ideal for filament storage.
 
 ## Features
