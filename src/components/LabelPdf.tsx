@@ -71,10 +71,10 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 150, // Start below the QR code area
         bottom: 60, // Align with bottom of image area
-        right: 30,
-        width: 200,
+        right: 60,
+        width: 140,
         flexDirection: 'row',
-        justifyContent: 'space-evenly',
+        justifyContent: 'space-between',
         alignItems: 'stretch',
     },
     noteLine: {
@@ -83,21 +83,30 @@ const styles = StyleSheet.create({
         borderLeftStyle: 'solid',
         height: '100%',
     },
+    // Warning strip
+    warningWrapper: {
+        width: 40,
+        marginRight: 30,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     warningContainer: {
-        marginTop: 10,
-        width: '100%',
+        width: 160, // Becomes visual height after rotation
         backgroundColor: '#fff8e6',
         borderWidth: 1,
         borderColor: '#e6a800',
         borderStyle: 'solid',
         padding: 4,
         borderRadius: 3,
+        transform: 'rotate(-90deg)',
     },
     warningText: {
-        fontSize: 7,
+        fontSize: 6,
         fontFamily: 'Helvetica',
         color: '#8a6500',
         lineHeight: 1.3,
+        textAlign: 'center',
     },
     // Text blocks positioning
     textBlock: {
@@ -201,24 +210,27 @@ const LabelContent = ({ data, style }: { data: ProductData; style?: any }) => {
                 {(data.image || data.imageBase64) && (
                     <Image src={data.imageBase64 || data.image} style={styles.image} />
                 )}
+
+                {/* Warning Column (between Image and QR) */}
+                {warning && (
+                    <View style={styles.warningWrapper}>
+                        <View style={styles.warningContainer}>
+                            <Text style={styles.warningText}>{warning.shortText}</Text>
+                            <Text style={[styles.warningText, { marginTop: 2 }]}>{warning.fullText}</Text>
+                        </View>
+                    </View>
+                )}
+
                 {/* QR Code Column */}
                 <View style={styles.rightColumn}>
                     {data.qrCodeBase64 && (
                         <Image src={data.qrCodeBase64} style={styles.qrCode} />
                     )}
-
-                    {/* Filament Warning (if applicable) */}
-                    {warning && (
-                        <View style={styles.warningContainer}>
-                            <Text style={styles.warningText}>{warning.shortText}</Text>
-                            <Text style={[styles.warningText, { marginTop: 2 }]}>{warning.fullText}</Text>
-                        </View>
-                    )}
                 </View>
             </View>
 
             {/* Vertical handwritten notes lines in right whitespace */}
-            <View style={[styles.notesContainer, warning ? { top: 230 } : {}]}>
+            <View style={styles.notesContainer}>
                 <View style={styles.noteLine} />
                 <View style={styles.noteLine} />
                 <View style={styles.noteLine} />
