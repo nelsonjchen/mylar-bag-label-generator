@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
         flexGrow: 1, // Image takes available space
         height: '100%',
         objectFit: 'contain',
+        transform: 'rotate(-90deg)',
     },
     qrCode: {
         width: 80,
