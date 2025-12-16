@@ -229,9 +229,22 @@ export default function Home() {
                   onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
                 />
                 <button onClick={handleGenerate} disabled={!url || loading}>
-                  {loading ? 'Gener...' : 'Generate'}
+                  {loading ? (
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                      <span className="spinner"></span>
+                      Generating...
+                    </span>
+                  ) : (
+                    'Generate'
+                  )}
                 </button>
               </div>
+
+              {loading && (
+                <div style={{ marginTop: '-1.5rem', marginBottom: '1.5rem', fontSize: '0.8rem', color: 'var(--muted-foreground)', textAlign: 'center' }}>
+                  Generation takes ~30s
+                </div>
+              )}
 
               <div style={{ marginBottom: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
                 <span style={{ color: 'var(--muted-foreground)', marginRight: '0.5rem' }}>No URL handy? Try:</span>
