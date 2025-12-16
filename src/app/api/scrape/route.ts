@@ -238,7 +238,7 @@ export async function POST(request: Request) {
         if (color) return;
 
         const scriptContent = $(el).html();
-        if (!scriptContent || !scriptContent.includes(variantId)) return;
+        if (!scriptContent || !variantId || !scriptContent.includes(variantId)) return;
 
         // Try to find JSON objects in the script content
         // Next.js often embeds data as: self.__next_f.push([1,"...escaped JSON..."])
