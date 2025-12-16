@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     notesContainer: {
         position: 'absolute',
         top: 150, // Start below the QR code area
-        bottom: 40, // Extend close to the bottom text
+        bottom: 60, // Align with bottom of image area
         right: 30,
         width: 200,
         flexDirection: 'row',
