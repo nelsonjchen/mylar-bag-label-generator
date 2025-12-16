@@ -130,17 +130,43 @@ export async function POST(request: Request) {
     // Extract variant ID from URL
     const variantId = urlObj.searchParams.get('variant') || urlObj.searchParams.get('id');
 
-    console.log('Scrape Request:', { url, variantId });
+    // Check for base64-encoded `p` parameter (alternative URL format from Bambu Lab)
+    // Format: ?p=base64([{"propertyKey":"Color","propertyValue":"Neon Green (53500)"},{"propertyKey":"Type","propertyValue":""},{"propertyKey":"Size","propertyValue":"1 kg"}])
+    const pParam = urlObj.searchParams.get('p');
+    let pParamColor = '';
+    let pParamSize = '';
 
-    // Validation - User must select a variant
-    if (!variantId) {
+    if (pParam) {
+      try {
+        const decoded = Buffer.from(pParam, 'base64').toString('utf-8');
+        const properties = JSON.parse(decoded) as Array<{ propertyKey: string; propertyValue: string }>;
+
+        for (const prop of properties) {
+          if (prop.propertyKey === 'Color' && prop.propertyValue) {
+            pParamColor = prop.propertyValue;
+            console.log('Extracted color from p parameter:', pParamColor);
+          }
+          if (prop.propertyKey === 'Size' && prop.propertyValue) {
+            pParamSize = prop.propertyValue;
+            console.log('Extracted size from p parameter:', pParamSize);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse p parameter:', e);
+      }
+    }
+
+    console.log('Scrape Request:', { url, variantId, pParamColor, pParamSize });
+
+    // Validation - User must select a variant (via id/variant param OR p param with color)
+    if (!variantId && !pParamColor) {
       return NextResponse.json({
-        error: 'Please select a specific color/option on the Bambu Lab page, then copy the URL (it should have a ?variant=... or ?id=... part).'
+        error: 'Please select a specific color/option on the Bambu Lab page, then copy the URL (it should have a ?variant=... or ?id=... part, or a ?p=... part).'
       }, { status: 400 });
     }
 
     // Extract and parse JSON-LD structured data
-    let color = '';
+    let color = pParamColor; // Start with color from p param if available
     let colorImage = '';
 
     // Find all JSON-LD script tags
