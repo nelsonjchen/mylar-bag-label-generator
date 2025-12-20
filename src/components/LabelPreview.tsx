@@ -60,7 +60,9 @@ export default function LabelPreview({ data, quantity }: LabelPreviewProps) {
         const link = document.createElement('a');
         link.href = instance.url;
         link.download = `label-${new Date().getTime()}.pdf`;
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -74,6 +76,7 @@ export default function LabelPreview({ data, quantity }: LabelPreviewProps) {
             }}>
                 <button
                     onClick={handleDownload}
+                    aria-label="Download PDF file"
                     style={{
                         backgroundColor: 'var(--foreground)',
                         color: 'var(--background)',
@@ -88,7 +91,7 @@ export default function LabelPreview({ data, quantity }: LabelPreviewProps) {
                         gap: '0.5rem'
                     }}
                 >
-                    <span>⬇️</span>
+                    <span aria-hidden="true">⬇️</span>
                     Download PDF
                 </button>
                 <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
