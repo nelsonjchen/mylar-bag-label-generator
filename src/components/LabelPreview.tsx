@@ -54,17 +54,58 @@ export default function LabelPreview({ data, quantity }: LabelPreviewProps) {
         );
     }
 
+    const handleDownload = () => {
+        if (!instance.url) return;
+        
+        const link = document.createElement('a');
+        link.href = instance.url;
+        link.download = `label-${new Date().getTime()}.pdf`;
+        link.click();
+    };
+
     return (
-        <div style={{ height: '800px', border: '1px solid #e5e5e5', borderRadius: '8px', overflow: 'hidden' }}>
-            {instance.url && (
-                <iframe
-                    src={instance.url}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 'none' }}
-                    title="Label Preview"
-                />
-            )}
+        <div>
+            <div className="no-print" style={{ 
+                marginBottom: '1rem', 
+                display: 'flex', 
+                gap: '1rem',
+                justifyContent: 'flex-start',
+                alignItems: 'center'
+            }}>
+                <button
+                    onClick={handleDownload}
+                    style={{
+                        backgroundColor: 'var(--foreground)',
+                        color: 'var(--background)',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        fontSize: '0.95rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}
+                >
+                    <span>⬇️</span>
+                    Download PDF
+                </button>
+                <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
+                    Or use the print button in the PDF viewer below
+                </span>
+            </div>
+            <div style={{ height: '800px', border: '1px solid #e5e5e5', borderRadius: '8px', overflow: 'hidden' }}>
+                {instance.url && (
+                    <iframe
+                        src={instance.url}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 'none' }}
+                        title="Label Preview"
+                    />
+                )}
+            </div>
         </div>
     );
 }
