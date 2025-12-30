@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "eslint",
     "pages:build": "npx @cloudflare/next-on-pages",
-    "preview": "npm run pages:build && wrangler pages dev"
+    "preview": "npm run pages:build && wrangler pages dev",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@cloudflare/containers": "^0.0.31",
