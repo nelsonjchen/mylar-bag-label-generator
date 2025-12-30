@@ -96,6 +96,13 @@ p {
   margin-bottom: 2rem;
 }
 
+@media (max-width: 640px) {
+  .input-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
 input[type="text"] {
   flex: 1;
   height: 3rem;
