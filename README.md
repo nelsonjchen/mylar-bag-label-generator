@@ -3,6 +3,8 @@
 This project generates printable labels for your 3D printer filament storage (Mylar bags).
 Input a Bambu Store URL, and it will generate a clean, professional PDF with two labels per page, including the product image and name.
 
+<img width="751" height="491" alt="Image" src="https://github.com/user-attachments/assets/2479deb3-8a06-483f-a9aa-06c8ac3b39de" />
+
 ### Purpose
 
 Hosted at: https://mylar-bag-label-generator.mindflakes.com/
