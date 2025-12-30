@@ -10,8 +10,6 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "pages:build": "npx @cloudflare/next-on-pages",
-    "preview": "npm run pages:build && wrangler pages dev",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
@@ -29,7 +27,6 @@
     "stream-browserify": "^3.0.0"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.13.16",
     "@types/node": "^25",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
