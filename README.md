@@ -16,6 +16,7 @@ Perfect for labeling Mylar bags with filament. Mylar bags often aren't transpare
 - **Automated Scraping**: Fetches product name and image from Bambu Store URLs.
 - **Manual Input**: Option to manually enter product details for custom labels.
 - **Print Optimization**: Formatted specifically for Letter-sized paper (2 labels per page).
+- **Dessicant Warning**: Includes a warning about dessicant.
 - **Premium UI**: Clean, dark-mode interface for easy interaction.
 
 > [!IMPORTANT]
